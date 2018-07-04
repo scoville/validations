@@ -84,6 +84,24 @@ func (user User) Validate(db *gorm.DB) {
 
 Checkout the [http://demo.getqor.com/admin/products/1](http://demo.getqor.com/admin/products/1) demo, change `Name` to be a blank string and save to see what happens.
 
+## Test
+
+Put below `.env` file to the directory.
+
+```
+TEST_DB_DRIVER="postgres"
+TEST_DB_NAME="validations_test"
+TEST_DB_URL="host=localhost dbname=validations_test sslmode=disable"
+```
+
+Run `dep ensure` to install dependencies.
+
+```
+$ dep ensure
+```
+
+Run `go test`.
+
 ## License
 
 Released under the [MIT License](http://opensource.org/licenses/MIT).

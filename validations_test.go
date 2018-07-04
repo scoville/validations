@@ -3,14 +3,19 @@ package validations_test
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
 	"regexp"
 	"testing"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/jinzhu/gorm"
+	"github.com/joho/godotenv"
+	"github.com/scoville/validations"
+
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/qor/qor/test/utils"
-	"github.com/qor/validations"
 )
 
 var db *gorm.DB
@@ -89,13 +94,24 @@ func (language *Language) Validate(db *gorm.DB) error {
 }
 
 func init() {
-	db = utils.TestDB()
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("failed to load .env")
+	}
+	if err := exec.Command("dropdb", os.Getenv("TEST_DB_NAME")).Run(); err != nil {
+		log.Println("failed to dropdb")
+	}
+	if err := exec.Command("createdb", os.Getenv("TEST_DB_NAME")).Run(); err != nil {
+		log.Fatal("failed to createdb")
+	}
+
+	var err error
+	db, err = gorm.Open(os.Getenv("TEST_DB_DRIVER"), os.Getenv("TEST_DB_URL"))
+	if err != nil {
+		log.Fatal("failed to gorm.Open")
+	}
 	validations.RegisterCallbacks(db)
 	tables := []interface{}{&User{}, &Company{}, &CreditCard{}, &Address{}, &Language{}}
 	for _, table := range tables {
-		if err := db.DropTableIfExists(table).Error; err != nil {
-			panic(err)
-		}
 		db.AutoMigrate(table)
 	}
 }
