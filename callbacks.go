@@ -38,8 +38,9 @@ func flatValidatorErrors(validatorErrors govalidator.Errors) []govalidator.Error
 	resultErrors := []govalidator.Error{}
 	for _, validatorError := range validatorErrors.Errors() {
 		if errors, ok := validatorError.(govalidator.Errors); ok {
-			for _, e := range errors {
-				resultErrors = append(resultErrors, e.(govalidator.Error))
+			flattedErrors := flatValidatorErrors(errors)
+			for _, e := range flattedErrors {
+				resultErrors = append(resultErrors, e)
 			}
 		}
 		if e, ok := validatorError.(govalidator.Error); ok {
